@@ -1,7 +1,15 @@
 ﻿@model Shikayat.Domain.Entities.Complaint
 @using Shikayat.Domain.Enums
+@using Shikayat.Application.Constants
 @{
-    Layout = "_AdminLayout";
+    if (User.IsInRole(Roles.Citizen))
+    {
+        Layout = "_Layout";
+    }
+    else
+    {
+        Layout = "_AdminLayout";
+    }
     ViewData["Title"] = $"Complaint #{Model.TicketId}";
 }
 
@@ -122,9 +130,18 @@
                 }
             </div>
         </div>
-        <a asp-action="Index" asp-controller="Admin" class="btn btn-outline-secondary w-100">
-            <i class="bi bi-arrow-left"></i> Back to Dashboard
-        </a>
+        @if (User.IsInRole(Roles.Citizen))
+        {
+            <a asp-action="Index" asp-controller="Complaint" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-arrow-left"></i> My Complaints
+            </a>
+        }
+        else
+        {
+            <a asp-action="Index" asp-controller="Admin" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        }
     </div>
 
     <!-- Right Side - Chat Interface -->

@@ -4,23 +4,26 @@ using Microsoft.AspNetCore.Mvc;
 using Shikayat.Application.Interfaces;
 using Shikayat.Domain.Entities;
 using Shikayat.Domain.Enums;
+using Shikayat.Application.Constants;
 
 namespace Shikayat.Web.Controllers
 {
-    [Authorize(Roles = "SuperAdmin, ProvincialAdmin, DistrictAdmin, ZonalAdmin")]
+    [Authorize(Roles = Roles.SuperAdmin + "," + Roles.ProvincialAdmin + "," + Roles.DistrictAdmin + "," + Roles.ZonalAdmin)]
     public class AdminController : Controller
     {
+        private readonly IDashboardService _dashboardService;
         private readonly IComplaintRepository _repo;
         private readonly ISuggestionRepository _suggestionRepo;
         private readonly ILookupRepository _lookupRepo;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public AdminController(IComplaintRepository repo, ISuggestionRepository suggestionRepo, ILookupRepository lookupRepo, UserManager<ApplicationUser> userManager)
+        public AdminController(IComplaintRepository repo, ISuggestionRepository suggestionRepo, ILookupRepository lookupRepo, UserManager<ApplicationUser> userManager, IDashboardService dashboardService)
         {
             _repo = repo;
             _suggestionRepo = suggestionRepo;
             _lookupRepo = lookupRepo;
             _userManager = userManager;
+            _dashboardService = dashboardService;
         }
 
         // UPDATED: Now accepts optional Drill-Down IDs (pId = ProvinceId, dId = DistrictId) and department filter
@@ -35,13 +38,13 @@ namespace Shikayat.Web.Controllers
             var roles = await _userManager.GetRolesAsync(user);
 
             // Pass tId to repo
-            var dashboardData = await _repo.GetDashboardStatsAsync(user, roles, pId, dId, tId, departmentId);
+            var dashboardData = await _dashboardService.GetDashboardStatsAsync(user, roles, pId, dId, tId, departmentId);
 
             // Add suggestion stats
             var suggestions = await _suggestionRepo.GetSuggestionsByJurisdictionAsync(
-                roles.Contains("ProvincialAdmin") ? user.ProvinceId : pId,
-                roles.Contains("DistrictAdmin") ? user.DistrictId : dId,
-                roles.Contains("ZonalAdmin") ? user.TehsilId : tId);
+                roles.Contains(Roles.ProvincialAdmin) ? user.ProvinceId : pId,
+                roles.Contains(Roles.DistrictAdmin) ? user.DistrictId : dId,
+                roles.Contains(Roles.ZonalAdmin) ? user.TehsilId : tId);
             
             dashboardData.TotalSuggestions = suggestions.Count;
             dashboardData.ResolvedSuggestions = suggestions.Count(s => s.Status == ComplaintStatus.Resolved);
@@ -81,11 +84,11 @@ namespace Shikayat.Web.Controllers
             int? tehsilId = null;
 
             // Determine jurisdiction based on role
-            if (roles.Contains("ProvincialAdmin"))
+            if (roles.Contains(Roles.ProvincialAdmin))
                 provinceId = user.ProvinceId;
-            else if (roles.Contains("DistrictAdmin"))
+            else if (roles.Contains(Roles.DistrictAdmin))
                 districtId = user.DistrictId;
-            else if (roles.Contains("ZonalAdmin"))
+            else if (roles.Contains(Roles.ZonalAdmin))
                 tehsilId = user.TehsilId;
             // SuperAdmin sees all (no filter)
 
@@ -123,12 +126,12 @@ namespace Shikayat.Web.Controllers
 
             // Get complaints for the region
             List<Complaint> complaints;
-            if (userRole == "SuperAdmin")
+            if (userRole == Roles.SuperAdmin)
             {
                 // SuperAdmin intervening at province level
                 complaints = await _repo.GetComplaintsByJurisdictionAsync(regionId, null, null);
             }
-            else if (userRole == "ProvincialAdmin")
+            else if (userRole == Roles.ProvincialAdmin)
             {
                 // ProvincialAdmin intervening at district level
                 complaints = await _repo.GetComplaintsByJurisdictionAsync(user.ProvinceId, regionId, null);

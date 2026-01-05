@@ -150,7 +150,7 @@ namespace Shikayat.Infrastructure.Repositories
 
         // ... inside the class ...
 
-        public async Task<DashboardDto> GetDashboardStatsAsync(ApplicationUser user, IList<string> roles, int? drillProvinceId = null, int? drillDistrictId = null, int? drillTehsilId = null, int? departmentId = null)
+        public async Task<DashboardDto> GetDashboardStatsAsync(DashboardFilterDto filter)
         {
             var dto = new DashboardDto();
             var query = _context.Complaints
@@ -161,138 +161,95 @@ namespace Shikayat.Infrastructure.Repositories
                 .Include(c => c.Tehsil)
                 .AsQueryable();
 
-            // Filter by department if specified
-            if (departmentId.HasValue)
-            {
-                query = query.Where(c => c.SubCategory.ParentId == departmentId);
-            }
+            // 1. APPLY FILTERS (From Service)
+            if (filter.DepartmentId.HasValue) 
+                query = query.Where(c => c.SubCategory.ParentId == filter.DepartmentId);
 
-            // 1. SECURITY FILTERS (Who are you?)
-            // Apply security filters based on role - these ensure users only see data they're authorized for
-            // Only apply when NOT drilling down (navigation filters handle drill-down scenarios)
-            if (roles.Contains("ProvincialAdmin") && !drillDistrictId.HasValue && !drillTehsilId.HasValue)
-            {
-                // Only apply security filter if NOT drilling down (when viewing province level)
-                if (!drillProvinceId.HasValue)
-                {
-                    query = query.Where(c => c.ProvinceId == user.ProvinceId);
-                }
-            }
-            if (roles.Contains("DistrictAdmin") && !drillDistrictId.HasValue && !drillTehsilId.HasValue)
-            {
-                query = query.Where(c => c.DistrictId == user.DistrictId);
-            }
-            if (roles.Contains("ZonalAdmin") && !drillTehsilId.HasValue)
-            {
-                query = query.Where(c => c.TehsilId == user.TehsilId);
-            }
+            if (filter.ProvinceId.HasValue)
+                query = query.Where(c => c.ProvinceId == filter.ProvinceId);
+            
+            if (filter.DistrictId.HasValue)
+                query = query.Where(c => c.DistrictId == filter.DistrictId);
+            
+            if (filter.TehsilId.HasValue)
+                query = query.Where(c => c.TehsilId == filter.TehsilId);
 
-            // 2. NAVIGATION FILTERS (Where did you click?) - Apply drill-down filters
-            // These restrict the query based on user navigation
-            if (drillProvinceId.HasValue) 
-            {
-                query = query.Where(c => c.ProvinceId == drillProvinceId);
-            }
-            if (drillDistrictId.HasValue) 
-            {
-                query = query.Where(c => c.DistrictId == drillDistrictId);
-                // For ProvincialAdmin: When drilling to district, ensure the district belongs to their province
-                // This is needed because districts belong to provinces, and we need to verify the relationship
-                if (roles.Contains("ProvincialAdmin") && user.ProvinceId.HasValue)
-                {
-                    // Always ensure the district is in the ProvincialAdmin's province
-                    // If drillProvinceId is set, it should match user.ProvinceId (security check)
-                    // If drillProvinceId is not set, use user.ProvinceId (authorization)
-                    int provinceFilter = drillProvinceId ?? user.ProvinceId.Value;
-                    query = query.Where(c => c.ProvinceId == provinceFilter);
-                }
-            }
-            if (drillTehsilId.HasValue) 
-            {
-                query = query.Where(c => c.TehsilId == drillTehsilId);
-            }
+            // Drill-down logic (Cumulative filters)
+            if (filter.DrillProvinceId.HasValue)
+                query = query.Where(c => c.ProvinceId == filter.DrillProvinceId);
+            
+            if (filter.DrillDistrictId.HasValue)
+                query = query.Where(c => c.DistrictId == filter.DrillDistrictId);
 
-            // 3. AGGREGATE STATS (Top Cards)
+            if (filter.DrillTehsilId.HasValue)
+                query = query.Where(c => c.TehsilId == filter.DrillTehsilId);
+
+
+            // 2. AGGREGATE STATS
             dto.TotalComplaints = await query.CountAsync();
             dto.ResolvedCount = await query.CountAsync(c => c.Status == ComplaintStatus.Resolved);
             dto.PendingCount = await query.CountAsync(c => c.Status != ComplaintStatus.Resolved);
             dto.ImportantCount = await query.CountAsync(c => c.IsImportant);
 
-            // 4. DETERMINE VIEW (The Hierarchy Logic)
-
-            // CASE A: Country Level View (SuperAdmin only, no drill down)
-            if (roles.Contains("SuperAdmin") && !drillProvinceId.HasValue)
+            // 3. DETERMINE VIEW HIERARCHY (Based on what filter was applied)
+            // Logic: 
+            // - If DrillTehsilId is set -> Show Complaints (Zonal View)
+            // - If DrillDistrictId is set -> Show Tehsils
+            // - If DrillProvinceId is set -> Show Districts
+            // - If nothing set -> Show Provinces (National View)
+            
+            // NOTE: The "UserRole" property in DTO is redundant/presentation-concern if used for logic, 
+            // but we'll populate it based on the view level for now or leave empty if Service sets it.
+            // Actually, Service "knows" the role, so Service should set the Title and Role.
+            // Metadata like "IsDrillDown" is also logic.
+            
+            // We just return data. The Service will enrich the DTO with titles.
+            // BUT, the GroupBy logic depends on the level.
+            
+            // 3. DETERMINE VIEW HIERARCHY (Based on effective scope)
+            // Logic: 
+            // - If focused on Tehsil (Drill or Fixed) -> Show Complaints
+            // - If focused on District (Drill or Fixed) -> Show Tehsils
+            // - If focused on Province (Drill or Fixed) -> Show Districts
+            // - Global -> Show Provinces
+            
+            if (filter.DrillTehsilId.HasValue || (filter.TehsilId.HasValue && !filter.DrillTehsilId.HasValue))
             {
-                dto.PageTitle = "National Overview (Pakistan)";
-                dto.UserRole = "SuperAdmin";
-                dto.IsDrillDown = false;
-
-                // Group by Province
-                dto.SubRegions = await query
-                    .GroupBy(c => c.Province)
-                    .Select(g => new RegionStatDto
-                    {
-                        Id = g.Key.Id,
-                        Name = g.Key.Name,
-                        Total = g.Count(),
-                        Resolved = g.Count(x => x.Status == ComplaintStatus.Resolved),
-                        Pending = g.Count(x => x.Status != ComplaintStatus.Resolved),
-                        Important = g.Count(x => x.IsImportant)
-                    }).ToListAsync();
-            }
-        // CASE B: Province Level View (ProvincialAdmin OR SuperAdmin drilling into Province)
-        else if ((roles.Contains("ProvincialAdmin") || drillProvinceId.HasValue) && !drillDistrictId.HasValue)
-            {
-                // Fetch Name for Title
-                string pName = drillProvinceId.HasValue
-                    ? (await _context.Locations.FindAsync(drillProvinceId))?.Name
-                    : (await _context.Locations.FindAsync(user.ProvinceId))?.Name;
-
-                dto.PageTitle = $"{pName} Province Dashboard";
-                dto.UserRole = "ProvincialAdmin";
-                dto.IsDrillDown = drillProvinceId.HasValue; // True if SuperAdmin clicked here
-
-                // Group by District
-                dto.SubRegions = await query
-                    .GroupBy(c => c.District)
-                    .Select(g => new RegionStatDto
-                    {
-                        Id = g.Key.Id,
-                        Name = g.Key.Name,
-                        Total = g.Count(),
-                        Resolved = g.Count(x => x.Status == ComplaintStatus.Resolved),
-                        Pending = g.Count(x => x.Status != ComplaintStatus.Resolved),
-                        Important = g.Count(x => x.IsImportant)
-                    }).ToListAsync();
-            }
-            // CASE C: District View (Shows List of Zones)
-            else if ((roles.Contains("DistrictAdmin") || drillDistrictId.HasValue) && !drillTehsilId.HasValue)
-            {
-                // Fetch district name for title
-                string districtName = drillDistrictId.HasValue
-                    ? (await _context.Locations.FindAsync(drillDistrictId))?.Name ?? "District Overview"
-                    : "District Overview";
-                
-                dto.PageTitle = districtName;
-                dto.UserRole = roles.Contains("DistrictAdmin") ? "DistrictAdmin" : "ProvincialAdmin"; // Preserve original role for ProvincialAdmin drill-down
-                dto.IsDrillDown = drillDistrictId.HasValue;
-                
-                // Group by Tehsil
-                dto.SubRegions = await query
-                    .GroupBy(c => c.Tehsil)
-                    .Select(g => new RegionStatDto { Id = g.Key.Id, Name = g.Key.Name, Total = g.Count(), Resolved = g.Count(x => x.Status == ComplaintStatus.Resolved), Pending = g.Count(x => x.Status != ComplaintStatus.Resolved) })
-                    .ToListAsync();
-            }
-            // CASE D: Zonal View (Shows Actual Complaints)
-            else
-            {
-                // This hits when drilling down to a specific Tehsil (Zone)!
-                dto.PageTitle = "Complaints List";
-                dto.UserRole = "ZonalAdmin"; // Using Zonal layout for the list view
-                dto.IsDrillDown = true;
+                 // Handle overlap: If TehsilId is fixed, we are effectively drill-downed to it.
+                 // BUT, we must ensure we don't double apply if both are same (Filter logic above checks values).
+                 
+                // Show Actual Complaints
                 dto.Complaints = await query
                     .Include(c => c.Citizen)
                     .OrderByDescending(c => c.IsImportant).ThenByDescending(c => c.CreatedAt)
+                    .ToListAsync();
+                dto.IsDrillDown = true;
+            }
+            else if (filter.DrillDistrictId.HasValue || (filter.DistrictId.HasValue && !filter.DrillDistrictId.HasValue))
+            {
+                // Show Tehsils
+                dto.IsDrillDown = true;
+                dto.SubRegions = await query
+                    .GroupBy(c => c.Tehsil)
+                    .Select(g => new RegionStatDto { Id = g.Key.Id, Name = g.Key.Name, Total = g.Count(), Resolved = g.Count(x => x.Status == ComplaintStatus.Resolved), Pending = g.Count(x => x.Status != ComplaintStatus.Resolved), Important = g.Count(x => x.IsImportant) })
+                    .ToListAsync();
+            }
+            else if (filter.DrillProvinceId.HasValue || (filter.ProvinceId.HasValue && !filter.DrillProvinceId.HasValue))
+            {
+                // Show Districts
+                dto.IsDrillDown = true;
+                dto.SubRegions = await query
+                    .GroupBy(c => c.District)
+                    .Select(g => new RegionStatDto { Id = g.Key.Id, Name = g.Key.Name, Total = g.Count(), Resolved = g.Count(x => x.Status == ComplaintStatus.Resolved), Pending = g.Count(x => x.Status != ComplaintStatus.Resolved), Important = g.Count(x => x.IsImportant) })
+                    .ToListAsync();
+            }
+            else
+            {
+                // Default: Show Provinces
+                dto.IsDrillDown = false;
+                dto.SubRegions = await query
+                    .GroupBy(c => c.Province)
+                    .Select(g => new RegionStatDto { Id = g.Key.Id, Name = g.Key.Name, Total = g.Count(), Resolved = g.Count(x => x.Status == ComplaintStatus.Resolved), Pending = g.Count(x => x.Status != ComplaintStatus.Resolved), Important = g.Count(x => x.IsImportant) })
                     .ToListAsync();
             }
 

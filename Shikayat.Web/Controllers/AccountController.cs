@@ -1,19 +1,16 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Shikayat.Application.DTOs;
-using Shikayat.Domain.Entities;
+using Shikayat.Application.Interfaces;
 
 namespace Shikayat.Web.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IAuthService _authService;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(IAuthService authService)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
+            _authService = authService;
         }
 
         // GET: /Account/Register
@@ -29,32 +26,17 @@ namespace Shikayat.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                // 1. Create the User Entity
-                var user = new ApplicationUser
+                var (succeeded, errors) = await _authService.RegisterAsync(model);
+
+                if (succeeded)
                 {
-                    UserName = model.Email,
-                    Email = model.Email,
-                    FullName = model.FullName,
-                    CNIC = model.CNIC
-                };
-
-                // 2. Store in Database
-                var result = await _userManager.CreateAsync(user, model.Password);
-
-                if (result.Succeeded)
-                {
-                    // 3. Assign Role (Default to Citizen)
-                    await _userManager.AddToRoleAsync(user, "Citizen");
-
-                    // 4. Sign In and Redirect
-                    await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
                 }
 
-                // If failure, add errors to UI (e.g., "Password too weak")
-                foreach (var error in result.Errors)
+                // If failure, add errors to UI
+                foreach (var error in errors)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    ModelState.AddModelError(string.Empty, error);
                 }
             }
             return View(model);
@@ -73,8 +55,8 @@ namespace Shikayat.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
-                if (result.Succeeded)
+                var succeeded = await _authService.LoginAsync(model);
+                if (succeeded)
                 {
                     return RedirectToAction("Index", "Home");
                 }
@@ -87,7 +69,7 @@ namespace Shikayat.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            await _authService.LogoutAsync();
             return RedirectToAction("Index", "Home");
         }
     }

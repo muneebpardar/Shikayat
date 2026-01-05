@@ -4,6 +4,8 @@ using Shikayat.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Shikayat.Application.Interfaces;
 using Shikayat.Infrastructure.Repositories;
+using Shikayat.Application.Services;
+using Shikayat.Infrastructure.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +37,13 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ILookupRepository, LookupRepository>();
 builder.Services.AddScoped<IComplaintRepository, ComplaintRepository>();
 builder.Services.AddScoped<ISuggestionRepository, SuggestionRepository>();
+
+// Service Layer
+builder.Services.AddScoped<IComplaintService, ComplaintService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 

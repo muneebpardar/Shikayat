@@ -1,0 +1,244 @@
+@model Shikayat.Application.DTOs.SuggestionSubmissionDto
+@{
+    ViewData["Title"] = "Submit a Suggestion";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="card shadow-lg border-0 enhanced-form">
+        <div class="card-header text-white" style="background: linear-gradient(135deg, #1e7e34 0%, #28a745 100%);">
+            <h3 class="mb-0">
+                <i class="bi bi-lightbulb-fill"></i> Submit a New Suggestion
+            </h3>
+            <small class="text-white-50">Share your ideas to improve government services</small>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post" enctype="multipart/form-data" id="suggestionForm">
+                <!-- Step 1: Categorization -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="bi bi-tags-fill"></i> Step 1: Categorization
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group-enhanced">
+                                <label asp-for="SelectedDepartmentId" class="form-label"></label>
+                                <select asp-for="SelectedDepartmentId" class="form-select" asp-items="ViewBag.Departments" id="SelectedDepartmentId">
+                                    <option value="">-- Select Department --</option>
+                                </select>
+                                <span asp-validation-for="SelectedDepartmentId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-enhanced">
+                                <label asp-for="SelectedSubCategoryId" class="form-label"></label>
+                                <select asp-for="SelectedSubCategoryId" class="form-select" disabled id="SelectedSubCategoryId">
+                                    <option value="">-- First Select Department --</option>
+                                </select>
+                                <span asp-validation-for="SelectedSubCategoryId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Location Details -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="bi bi-geo-alt-fill"></i> Step 2: Location Details
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group-enhanced">
+                                <label asp-for="SelectedProvinceId" class="form-label"></label>
+                                <select asp-for="SelectedProvinceId" class="form-select" asp-items="ViewBag.Provinces" id="SelectedProvinceId">
+                                    <option value="">-- Select Province --</option>
+                                </select>
+                                <span asp-validation-for="SelectedProvinceId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group-enhanced">
+                                <label asp-for="SelectedDistrictId" class="form-label"></label>
+                                <select asp-for="SelectedDistrictId" class="form-select" disabled id="SelectedDistrictId">
+                                    <option value="">-- First Select Province --</option>
+                                </select>
+                                <span asp-validation-for="SelectedDistrictId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group-enhanced">
+                                <label asp-for="SelectedTehsilId" class="form-label"></label>
+                                <select asp-for="SelectedTehsilId" class="form-select" disabled id="SelectedTehsilId">
+                                    <option value="">-- First Select District --</option>
+                                </select>
+                                <span asp-validation-for="SelectedTehsilId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Suggestion Details -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="bi bi-file-text-fill"></i> Step 3: Suggestion Details
+                    </div>
+                    <div class="form-group-enhanced">
+                        <label asp-for="Subject" class="form-label"></label>
+                        <input asp-for="Subject" class="form-control" placeholder="Enter a brief title for your suggestion" />
+                        <small class="text-muted">Keep it concise and descriptive</small>
+                        <span asp-validation-for="Subject" class="text-danger"></span>
+                    </div>
+                    <div class="form-group-enhanced">
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="6" placeholder="Describe your suggestion in detail. Explain the problem, your proposed solution, and expected benefits..."></textarea>
+                        <small class="text-muted">Provide detailed information to help us understand and implement your suggestion</small>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Step 4: Attachments -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="bi bi-paperclip"></i> Step 4: Attachments (Optional)
+                    </div>
+                    <div class="form-group-enhanced">
+                        <label asp-for="Attachment" class="form-label"></label>
+                        <div class="file-upload-area" onclick="document.getElementById('attachmentInput').click();">
+                            <i class="bi bi-cloud-upload" style="font-size: 2rem; color: #1e7e34;"></i>
+                            <p class="mb-2 mt-3">Click to upload or drag and drop</p>
+                            <p class="text-muted small mb-0">Supports: Images (JPG, PNG, GIF) and PDF files (Max 5MB)</p>
+                        </div>
+                        <input type="file" asp-for="Attachment" class="form-control d-none" accept="image/*,.pdf" id="attachmentInput" />
+                        <span asp-validation-for="Attachment" class="text-danger"></span>
+                        <div id="filePreview" class="mt-3" style="display: none;">
+                            <div class="file-preview-card">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-file-earmark-pdf-fill me-2" style="font-size: 1.5rem; color: #1e7e34;"></i>
+                                    <div class="flex-grow-1">
+                                        <strong id="fileName"></strong>
+                                        <div class="text-muted small" id="fileSize"></div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearFile()">
+                                        <i class="bi bi-x-circle"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-lg text-white" style="background: linear-gradient(135deg, #1e7e34 0%, #28a745 100%); padding: 0.875rem 2rem; font-weight: 600; border-radius: 8px;">
+                        <i class="bi bi-send-fill"></i> Submit Suggestion
+                    </button>
+                    <small class="text-muted text-center mt-2">
+                        <i class="bi bi-info-circle"></i> Your suggestion will be assigned a unique ticket number for tracking
+                    </small>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('#attachmentInput').change(function() {
+                const file = this.files[0];
+                if (file) {
+                    const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                    const isPDF = file.type === 'application/pdf';
+                    $('#fileName').html(`<i class="bi bi-file-earmark-${isPDF ? 'pdf' : 'image'}-fill"></i> ${file.name}`);
+                    $('#fileSize').text(`Size: ${fileSize} MB`);
+                    $('#filePreview').show();
+                } else {
+                    $('#filePreview').hide();
+                }
+            });
+
+            window.clearFile = function() {
+                $('#attachmentInput').val('');
+                $('#filePreview').hide();
+            };
+
+            const fileArea = $('.file-upload-area');
+            fileArea.on('dragover', function(e) {
+                e.preventDefault();
+                $(this).addClass('dragover');
+            });
+            fileArea.on('dragleave', function(e) {
+                e.preventDefault();
+                $(this).removeClass('dragover');
+            });
+            fileArea.on('drop', function(e) {
+                e.preventDefault();
+                $(this).removeClass('dragover');
+                const files = e.originalEvent.dataTransfer.files;
+                if (files.length > 0) {
+                    $('#attachmentInput')[0].files = files;
+                    $('#attachmentInput').trigger('change');
+                }
+            });
+
+            $("#SelectedDepartmentId").change(function () {
+                var deptId = $(this).val();
+                var $subCat = $("#SelectedSubCategoryId");
+                if (deptId) {
+                    $subCat.empty().append('<option value="">Loading...</option>').prop('disabled', true).addClass('dropdown-loading');
+                    $.getJSON('/Suggestion/GetSubCategories', { departmentId: deptId }, function (data) {
+                        $subCat.empty().append('<option value="">-- Select Sub-Category --</option>');
+                        $.each(data, function (i, item) {
+                            $subCat.append($('<option>').val(item.id).text(item.name));
+                        });
+                        $subCat.prop('disabled', false).removeClass('dropdown-loading');
+                    }).fail(function() {
+                        $subCat.empty().append('<option value="">Error loading categories</option>').removeClass('dropdown-loading');
+                    });
+                } else {
+                    $subCat.empty().append('<option value="">-- First Select Department --</option>').prop('disabled', true);
+                }
+            });
+
+            $("#SelectedProvinceId").change(function () {
+                var provId = $(this).val();
+                var $dist = $("#SelectedDistrictId");
+                var $tehsil = $("#SelectedTehsilId");
+                if (provId) {
+                    $dist.empty().append('<option value="">Loading...</option>').prop('disabled', true).addClass('dropdown-loading');
+                    $tehsil.empty().append('<option value="">-- First Select District --</option>').prop('disabled', true);
+                    $.getJSON('/Suggestion/GetDistricts', { provinceId: provId }, function (data) {
+                        $dist.empty().append('<option value="">-- Select District --</option>');
+                        $.each(data, function (i, item) {
+                            $dist.append($('<option>').val(item.id).text(item.name));
+                        });
+                        $dist.prop('disabled', false).removeClass('dropdown-loading');
+                    }).fail(function() {
+                        $dist.empty().append('<option value="">Error loading districts</option>').removeClass('dropdown-loading');
+                    });
+                } else {
+                    $dist.empty().append('<option value="">-- First Select Province --</option>').prop('disabled', true);
+                }
+            });
+
+            $("#SelectedDistrictId").change(function () {
+                var distId = $(this).val();
+                var $tehsil = $("#SelectedTehsilId");
+                if (distId) {
+                    $tehsil.empty().append('<option value="">Loading...</option>').prop('disabled', true).addClass('dropdown-loading');
+                    $.getJSON('/Suggestion/GetTehsils', { districtId: distId }, function (data) {
+                        $tehsil.empty().append('<option value="">-- Select Tehsil --</option>');
+                        $.each(data, function (i, item) {
+                            $tehsil.append($('<option>').val(item.id).text(item.name));
+                        });
+                        $tehsil.prop('disabled', false).removeClass('dropdown-loading');
+                    }).fail(function() {
+                        $tehsil.empty().append('<option value="">Error loading tehsils</option>').removeClass('dropdown-loading');
+                    });
+                } else {
+                    $tehsil.empty().append('<option value="">-- First Select District --</option>').prop('disabled', true);
+                }
+            });
+        });
+    </script>
+}

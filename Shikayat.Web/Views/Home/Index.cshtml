@@ -1,0 +1,143 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="container my-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold text-dark mb-3">
+                <i class="bi bi-shield-check me-2"></i> SHIKAYAT<sub>PK</sub>
+            </h1>
+            <p class="lead text-muted">Your voice matters. Report issues and share suggestions to make Pakistan better.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Lodge Complaint Card -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border-0 hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="bi bi-file-earmark-text-fill text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5 class="card-title fw-bold mb-3">Lodge Complaint</h5>
+                    <p class="card-text text-muted mb-4">Report an issue that needs attention from the authorities.</p>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a asp-controller="Complaint" asp-action="Create" class="btn btn-primary w-100">
+                            <i class="bi bi-plus-circle me-2"></i>File Complaint
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-primary w-100">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Login to File
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Lodge Suggestion Card -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border-0 hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="bi bi-lightbulb-fill text-warning" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5 class="card-title fw-bold mb-3">Submit Suggestion</h5>
+                    <p class="card-text text-muted mb-4">Share your ideas and suggestions to improve public services.</p>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a asp-controller="Suggestion" asp-action="Create" class="btn btn-warning w-100">
+                            <i class="bi bi-lightbulb me-2"></i>Submit Suggestion
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-warning w-100">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Login to Submit
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- My Complaints Card -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border-0 hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="bi bi-list-ul text-info" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5 class="card-title fw-bold mb-3">My Complaints</h5>
+                    <p class="card-text text-muted mb-4">View and track all your submitted complaints.</p>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a asp-controller="Complaint" asp-action="Index" class="btn btn-info text-white w-100">
+                            <i class="bi bi-eye me-2"></i>View Complaints
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-info text-white w-100">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Login to View
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- My Suggestions Card -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border-0 hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="bi bi-lightbulb text-success" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5 class="card-title fw-bold mb-3">My Suggestions</h5>
+                    <p class="card-text text-muted mb-4">Check the status of your submitted suggestions.</p>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a asp-controller="Suggestion" asp-action="Index" class="btn btn-success w-100">
+                            <i class="bi bi-eye me-2"></i>View Suggestions
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-success w-100">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Login to View
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Information Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>About SHIKAYAT<sub>PK</sub></h4>
+                    <p class="mb-0">
+                        SHIKAYAT<sub>PK</sub> is a citizen complaint and suggestion management system designed to facilitate communication 
+                        between citizens and government authorities. Use this platform to report issues in your area, submit suggestions 
+                        for improvement, and track the status of your submissions.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>

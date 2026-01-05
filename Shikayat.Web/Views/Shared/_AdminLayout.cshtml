@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Shikayat Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+                <aside class="admin-sidebar">
+                    <div class="sidebar-header">
+                        <h4 class="mb-0 text-white text-center">
+                            SHIKAYAT<sub style="font-size: 0.6em; margin-left: 2px;">PK</sub>
+                        </h4>
+                        <small class="text-white-50 text-center d-block">Admin Portal</small>
+                    </div>
+            <nav class="sidebar-nav">
+                <a asp-controller="Admin" asp-action="Index" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a asp-controller="Admin" asp-action="AllComplaints" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["action"]?.ToString() == "AllComplaints" ? "active" : "")">
+                    <i class="bi bi-list-ul"></i> All Complaints
+                </a>
+                @if (User.IsInRole("SuperAdmin") || User.IsInRole("ProvincialAdmin"))
+                {
+                    <a asp-controller="Analytics" asp-action="Index" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Analytics" ? "active" : "")">
+                        <i class="bi bi-graph-up"></i> Analytics
+                    </a>
+                }
+                <a asp-controller="Home" asp-action="Index" class="nav-item">
+                    <i class="bi bi-house"></i> Public Site
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="admin-main">
+            <!-- Topbar -->
+            <header class="admin-topbar">
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="#">Home</a></li>
+                            @if (ViewBag.Breadcrumbs != null)
+                            {
+                                @foreach (var crumb in ViewBag.Breadcrumbs)
+                                {
+                                    <li class="breadcrumb-item"><a href="@crumb.Url">@crumb.Text</a></li>
+                                }
+                            }
+                            <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                        </ol>
+                    </nav>
+                    <div class="d-flex align-items-center gap-3">
+                        <partial name="_LoginPartial" />
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="admin-content">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <partial name="_NotificationScripts" />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+

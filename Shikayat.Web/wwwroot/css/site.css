@@ -1,0 +1,284 @@
+/* Shikayat - Green Theme based on Logo Colors */
+:root {
+    --dark-green: #0d4f1c;
+    --medium-green: #1e7e34;
+    --light-green: #90ee90;
+    --accent-green: #28a745;
+    --green-gradient-start: #1e7e34;
+    --green-gradient-end: #28a745;
+    --text-dark: #000000;
+    --text-light: #ffffff;
+    --bg-light: #f8f9fa;
+}
+
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+body {
+    margin-bottom: 60px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-color: var(--bg-light);
+}
+
+/* Button Focus States */
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem var(--medium-green);
+}
+
+/* Primary Buttons - Green Theme */
+.btn-primary {
+    background: linear-gradient(135deg, var(--green-gradient-start) 0%, var(--green-gradient-end) 100%);
+    border: none;
+    color: white;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--dark-green) 0%, var(--green-gradient-start) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(30, 126, 52, 0.3);
+}
+
+.btn-primary:focus {
+    box-shadow: 0 0 0 0.25rem rgba(30, 126, 52, 0.5);
+}
+
+/* Success Buttons */
+.btn-success {
+    background: var(--accent-green);
+    border: none;
+    color: white;
+}
+
+.btn-success:hover {
+    background: var(--medium-green);
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--green-gradient-start) 0%, var(--green-gradient-end) 100%);
+    color: white;
+    border-radius: 12px 12px 0 0 !important;
+    font-weight: 600;
+    border: none;
+}
+
+/* Form Controls */
+.form-control:focus {
+    border-color: var(--medium-green);
+    box-shadow: 0 0 0 0.25rem rgba(30, 126, 52, 0.25);
+}
+
+.form-select:focus {
+    border-color: var(--medium-green);
+    box-shadow: 0 0 0 0.25rem rgba(30, 126, 52, 0.25);
+}
+
+/* Enhanced Form Styling */
+.form-label {
+    font-weight: 600;
+    color: var(--dark-green);
+    margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    padding: 0.75rem;
+    transition: all 0.2s;
+}
+
+.form-control:hover, .form-select:hover {
+    border-color: var(--medium-green);
+}
+
+/* Alert Styles */
+.alert-info {
+    background-color: #d1ecf1;
+    border-color: var(--medium-green);
+    color: #0c5460;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border-color: var(--accent-green);
+    color: #155724;
+}
+
+/* Badge Styles */
+.badge {
+    padding: 0.5em 0.75em;
+    font-weight: 500;
+    border-radius: 6px;
+}
+
+.badge.bg-success {
+    background-color: var(--accent-green) !important;
+}
+
+/* Table Styles */
+.table {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead {
+    background: linear-gradient(135deg, var(--green-gradient-start) 0%, var(--green-gradient-end) 100%);
+    color: white;
+}
+
+.table thead th {
+    border: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+}
+
+.table tbody tr {
+    transition: background-color 0.15s;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(30, 126, 52, 0.05);
+}
+
+/* Footer */
+.footer {
+    background-color: var(--dark-green);
+    color: white;
+    padding: 1.5rem 0;
+    margin-top: auto;
+}
+
+.footer a {
+    color: var(--light-green);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+/* Logo Styling */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: white !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-brand:hover {
+    color: var(--light-green) !important;
+    opacity: 0.9;
+}
+
+.navbar-brand sub {
+    color: var(--light-green);
+    font-weight: 600;
+}
+
+/* Loading Spinner */
+.spinner-border {
+    border-color: var(--medium-green);
+    border-right-color: transparent;
+}
+
+/* Utility Classes */
+.text-primary {
+    color: var(--medium-green) !important;
+}
+
+.border-primary {
+    border-color: var(--medium-green) !important;
+}
+
+.bg-primary {
+    background-color: var(--medium-green) !important;
+}
+
+/* Step Indicators for Forms */
+.form-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.form-steps::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #dee2e6;
+    z-index: 1;
+}
+
+.form-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.form-step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.5rem;
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.form-step.active .form-step-number {
+    background: var(--accent-green);
+    border-color: var(--accent-green);
+    color: white;
+}
+
+.form-step.completed .form-step-number {
+    background: var(--medium-green);
+    border-color: var(--medium-green);
+    color: white;
+}
+
+.form-step-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6c757d;
+}
+
+.form-step.active .form-step-title {
+    color: var(--medium-green);
+    font-weight: 600;
+}

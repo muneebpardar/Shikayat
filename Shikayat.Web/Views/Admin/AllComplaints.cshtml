@@ -1,0 +1,119 @@
+@model List<Shikayat.Domain.Entities.Complaint>
+@using Shikayat.Domain.Enums
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "All Complaints";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-dark mb-1">All Complaints</h2>
+        <p class="text-muted mb-0">Complaints in your jurisdiction</p>
+    </div>
+</div>
+
+<!-- Department Filter (For All Admins) -->
+@if (ViewBag.Departments != null)
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" asp-action="AllComplaints" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Filter by Department:</label>
+                    <select name="departmentId" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Departments</option>
+                        @foreach (var dept in ViewBag.Departments as List<Shikayat.Domain.Entities.Category>)
+                        {
+                            var isSelected = ViewBag.SelectedDepartmentId != null && ViewBag.SelectedDepartmentId == dept.Id;
+                            <option value="@dept.Id" selected="@isSelected">@dept.Name</option>
+                        }
+                    </select>
+                </div>
+                @if (ViewBag.SelectedDepartmentId != null)
+                {
+                    <div class="col-md-2">
+                        <a asp-action="AllComplaints" class="btn btn-outline-secondary">Clear Filter</a>
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+}
+
+<!-- Complaints Table -->
+<div class="data-grid">
+    <div class="p-3 border-bottom bg-light d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold">Complaints List (@Model.Count)</h6>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Ticket ID</th>
+                    <th>Subject</th>
+                    <th>Department</th>
+                    <th>Sub-Category</th>
+                    <th>Citizen</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var complaint in Model.OrderByDescending(c => c.IsImportant).ThenByDescending(c => c.CreatedAt))
+                {
+                    <tr class="@(complaint.IsImportant ? "table-warning" : "")">
+                        <td class="fw-bold">@complaint.TicketId</td>
+                        <td>@complaint.Subject</td>
+                        <td>
+                            @if (complaint.SubCategory?.Parent != null)
+                            {
+                                <span class="badge bg-info">@complaint.SubCategory.Parent.Name</span>
+                            }
+                        </td>
+                        <td>@complaint.SubCategory?.Name</td>
+                        <td>
+                            @complaint.Citizen?.FullName <br />
+                            <small class="text-muted" style="font-size:0.75rem">@complaint.Citizen?.Email</small>
+                        </td>
+                        <td>
+                            <small>
+                                @complaint.Province?.Name<br />
+                                @complaint.District?.Name<br />
+                                @complaint.Tehsil?.Name
+                            </small>
+                        </td>
+                        <td>
+                            <span class="badge bg-@(complaint.Status == ComplaintStatus.Resolved ? "success" : complaint.Status == ComplaintStatus.InProgress ? "primary" : "secondary")">
+                                @complaint.Status
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-@(complaint.Priority == ComplaintPriority.Critical ? "danger" : complaint.Priority == ComplaintPriority.High ? "warning" : "secondary")">
+                                @complaint.Priority
+                            </span>
+                        </td>
+                        <td>@complaint.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        <td>
+                            <a asp-controller="Complaint" asp-action="Details" asp-route-id="@complaint.Id" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="10" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                            <p class="mt-2 mb-0">No complaints found</p>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

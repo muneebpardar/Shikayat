@@ -1,0 +1,338 @@
+﻿@model Shikayat.Application.DTOs.DashboardDto
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = Model.PageTitle;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-dark mb-1">@Model.PageTitle</h2>
+        <p class="text-muted mb-0">Real-time situational awareness</p>
+    </div>
+    @if (Model.IsDrillDown)
+    {
+        <button onclick="history.back()" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> Back
+        </button>
+    }
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card total">
+            <div class="stat-icon">
+                <i class="bi bi-file-earmark-text"></i>
+            </div>
+            <h6>Total Complaints</h6>
+            <h2>@Model.TotalComplaints</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card resolved">
+            <div class="stat-icon">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <h6>Resolved</h6>
+            <h2>@Model.ResolvedCount</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card pending">
+            <div class="stat-icon">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <h6>Pending / In-Progress</h6>
+            <h2>@Model.PendingCount</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card important">
+            <div class="stat-icon">
+                <i class="bi bi-flag-fill"></i>
+            </div>
+            <h6>Marked Important</h6>
+            <h2>@Model.ImportantCount</h2>
+        </div>
+    </div>
+</div>
+
+<!-- Suggestions Stat Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card" style="border-left-color: #20b2aa;">
+            <div class="stat-icon" style="background: rgba(32, 178, 170, 0.1); color: #20b2aa;">
+                <i class="bi bi-lightbulb"></i>
+            </div>
+            <h6>Total Suggestions</h6>
+            <h2>@Model.TotalSuggestions</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card" style="border-left-color: #20b2aa;">
+            <div class="stat-icon" style="background: rgba(32, 178, 170, 0.1); color: #20b2aa;">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <h6>Responded</h6>
+            <h2>@Model.ResolvedSuggestions</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card" style="border-left-color: #20b2aa;">
+            <div class="stat-icon" style="background: rgba(32, 178, 170, 0.1); color: #20b2aa;">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <h6>Pending Suggestions</h6>
+            <h2>@Model.PendingSuggestions</h2>
+        </div>
+    </div>
+</div>
+
+@if (Model.SubRegions != null && Model.SubRegions.Any())
+{
+    <!-- Charts -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-8">
+            <div class="data-grid">
+                <div class="p-3 border-bottom">
+                    <h6 class="mb-0 fw-bold">Regional Performance</h6>
+                </div>
+                <div class="p-3">
+                    <canvas id="barChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="data-grid">
+                <div class="p-3 border-bottom">
+                    <h6 class="mb-0 fw-bold">Status Distribution</h6>
+                </div>
+                <div class="p-3">
+                    <canvas id="pieChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Regional Breakdown Table -->
+    <div class="data-grid">
+        <div class="p-3 border-bottom bg-light">
+            <h6 class="mb-0 fw-bold">Regional Breakdown</h6>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Region Name</th>
+                        <th>Total</th>
+                        <th>Resolved</th>
+                        <th>Pending</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var region in Model.SubRegions)
+                    {
+                        <tr>
+                            <td class="fw-bold">@region.Name</td>
+                            <td><span class="badge bg-secondary">@region.Total</span></td>
+                            <td><span class="badge bg-success">@region.Resolved</span></td>
+                            <td><span class="badge bg-warning text-dark">@region.Pending</span></td>
+                            <td>
+                                @if (Model.UserRole == "SuperAdmin" && ViewBag.CurrentProvId == null)
+                                {
+                                    <a asp-action="Index" asp-route-pId="@region.Id" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-arrow-right"></i> View Province
+                                    </a>
+                                }
+                                else if ((Model.UserRole == "ProvincialAdmin" || Model.UserRole == "SuperAdmin") && ViewBag.CurrentDistId == null)
+                                {
+                                    <a asp-action="Index" asp-route-pId="@(Model.UserRole == "ProvincialAdmin" ? (ViewBag.UserProvinceId ?? ViewBag.CurrentProvId) : (ViewBag.CurrentProvId ?? region.Id))" asp-route-dId="@region.Id" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-arrow-right"></i> View District
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-action="Index"
+                                       asp-route-pId="@ViewBag.CurrentProvId"
+                                       asp-route-dId="@ViewBag.CurrentDistId"
+                                       asp-route-tId="@region.Id"
+                                       class="btn btn-sm btn-primary">
+                                        <i class="bi bi-arrow-right"></i> View Complaints
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Complaints List -->
+    <div class="data-grid">
+        <div class="p-3 border-bottom bg-light d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold">Active Complaints List</h6>
+            <span class="badge bg-info">Zone View</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Ticket</th>
+                        <th>Subject</th>
+                        <th>Citizen</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Complaints)
+                    {
+                        <tr class="@(item.IsImportant ? "table-danger" : "")">
+                            <td class="fw-bold">@item.TicketId</td>
+                            <td>@item.Subject</td>
+                            <td>
+                                @item.Citizen?.FullName <br />
+                                <small class="text-muted" style="font-size:0.75rem">@item.Citizen?.Email</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-@(item.Status == Shikayat.Domain.Enums.ComplaintStatus.Resolved ? "success" : "secondary")">
+                                    @item.Status
+                                </span>
+                            </td>
+                            <td>@item.CreatedAt.ToString("MMM dd")</td>
+                            <td>
+                                <a asp-controller="Complaint" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-gear"></i> Manage
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Chart scripts
+        @if (Model.SubRegions != null && Model.SubRegions.Any())
+        {
+            <text>
+            const labels = @Json.Serialize(Model.SubRegions.Select(x => x.Name));
+            const resolvedData = @Json.Serialize(Model.SubRegions.Select(x => x.Resolved));
+            const pendingData = @Json.Serialize(Model.SubRegions.Select(x => x.Pending));
+
+            // Bar Chart
+            new Chart(document.getElementById('barChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { 
+                            label: 'Resolved', 
+                            data: resolvedData, 
+                            backgroundColor: '#20b2aa' 
+                        },
+                        { 
+                            label: 'Pending', 
+                            data: pendingData, 
+                            backgroundColor: '#ffc107' 
+                        }
+                    ]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: { 
+                        y: { beginAtZero: true } 
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+
+            // Pie Chart
+            new Chart(document.getElementById('pieChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Resolved', 'Pending'],
+                    datasets: [{
+                        data: [@Model.ResolvedCount, @Model.PendingCount],
+                        backgroundColor: ['#20b2aa', '#ffc107']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            </text>
+        }
+
+        // Intervene Modal Functions
+        function openInterveneModal(regionId, regionName, userRole) {
+            document.getElementById('interveneRegionId').value = regionId;
+            document.getElementById('interveneRegionName').textContent = regionName;
+            document.getElementById('interveneUserRole').value = userRole;
+            document.getElementById('interveneMessage').value = '';
+            const modal = new bootstrap.Modal(document.getElementById('interveneModal'));
+            modal.show();
+        }
+
+        // Handle Intervene Form Submission
+        document.getElementById('interveneForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const regionId = document.getElementById('interveneRegionId').value;
+            const userRole = document.getElementById('interveneUserRole').value;
+            const message = document.getElementById('interveneMessage').value;
+            
+            if (!message.trim()) {
+                alert('Please enter a message.');
+                return;
+            }
+
+            try {
+                const response = await fetch('@Url.Action("SendIntervention", "Admin")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({
+                        regionId: parseInt(regionId),
+                        userRole: userRole,
+                        message: message
+                    })
+                });
+
+                if (response.ok) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('interveneModal'));
+                    modal.hide();
+                    alert('Intervention sent successfully!');
+                    location.reload();
+                } else {
+                    alert('Failed to send intervention. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while sending the intervention.');
+            }
+        });
+    </script>
+}

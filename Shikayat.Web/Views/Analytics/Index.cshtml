@@ -1,0 +1,409 @@
+@model Shikayat.Application.DTOs.AnalyticsDto
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Analytics Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-dark mb-1">@Model.PageTitle</h2>
+        <p class="text-muted mb-0">Comprehensive data insights and trends</p>
+    </div>
+</div>
+
+<!-- Key Metrics Overview -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card total">
+            <div class="stat-icon">
+                <i class="bi bi-file-earmark-text"></i>
+            </div>
+            <h6>Total Complaints</h6>
+            <h2>@Model.TotalComplaints.ToString("N0")</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card resolved">
+            <div class="stat-icon">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <h6>Resolved</h6>
+            <h2>@Model.TotalResolved.ToString("N0")</h2>
+            <small class="text-muted">@Model.ResolutionRate.ToString("F1")% Resolution Rate</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card pending">
+            <div class="stat-icon">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <h6>Pending</h6>
+            <h2>@Model.TotalPending.ToString("N0")</h2>
+            <small class="text-muted">@((100 - Model.ResolutionRate).ToString("F1"))% Pending</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card important">
+            <div class="stat-icon">
+                <i class="bi bi-flag-fill"></i>
+            </div>
+            <h6>Important</h6>
+            <h2>@Model.TotalImportant.ToString("N0")</h2>
+            <small class="text-muted">Avg. Resolution: @Model.AverageResolutionDays.ToString("F1") days</small>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Top Regions by Complaints -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-geo-alt-fill me-2"></i>Top Regions by Complaints</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.TopProvincesByComplaints.Any())
+                {
+                    <h6 class="text-muted mb-3">Provinces</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Province</th>
+                                    <th class="text-end">Total</th>
+                                    <th class="text-end">Resolved</th>
+                                    <th class="text-end">Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var province in Model.TopProvincesByComplaints)
+                                {
+                                    <tr>
+                                        <td class="fw-bold">@province.Name</td>
+                                        <td class="text-end"><span class="badge bg-secondary">@province.TotalComplaints</span></td>
+                                        <td class="text-end"><span class="badge bg-success">@province.ResolvedComplaints</span></td>
+                                        <td class="text-end"><span class="badge bg-info">@province.ResolutionRate.ToString("F1")%</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                
+                @if (Model.TopDistrictsByComplaints.Any())
+                {
+                    <h6 class="text-muted mb-3 mt-4">Districts</h6>
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-sm table-hover">
+                            <thead class="sticky-top bg-white">
+                                <tr>
+                                    <th>District</th>
+                                    <th class="text-end">Total</th>
+                                    <th class="text-end">Resolved</th>
+                                    <th class="text-end">Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var district in Model.TopDistrictsByComplaints)
+                                {
+                                    <tr>
+                                        <td class="fw-bold">@district.Name</td>
+                                        <td class="text-end"><span class="badge bg-secondary">@district.TotalComplaints</span></td>
+                                        <td class="text-end"><span class="badge bg-success">@district.ResolvedComplaints</span></td>
+                                        <td class="text-end"><span class="badge bg-info">@district.ResolutionRate.ToString("F1")%</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
+                @if (Model.TopTehsilsByComplaints.Any())
+                {
+                    <h6 class="text-muted mb-3 mt-4">Tehsils/Zones</h6>
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-sm table-hover">
+                            <thead class="sticky-top bg-white">
+                                <tr>
+                                    <th>Tehsil/Zone</th>
+                                    <th class="text-end">Total</th>
+                                    <th class="text-end">Resolved</th>
+                                    <th class="text-end">Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var tehsil in Model.TopTehsilsByComplaints)
+                                {
+                                    <tr>
+                                        <td class="fw-bold">@tehsil.Name</td>
+                                        <td class="text-end"><span class="badge bg-secondary">@tehsil.TotalComplaints</span></td>
+                                        <td class="text-end"><span class="badge bg-success">@tehsil.ResolvedComplaints</span></td>
+                                        <td class="text-end"><span class="badge bg-info">@tehsil.ResolutionRate.ToString("F1")%</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Department & Category Analytics -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-building me-2"></i>Top Departments</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-sm table-hover">
+                        <thead class="sticky-top bg-white">
+                            <tr>
+                                <th>Department</th>
+                                <th class="text-end">Total</th>
+                                <th class="text-end">Resolved</th>
+                                <th class="text-end">% of Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var dept in Model.TopDepartmentsByComplaints)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@dept.Name</td>
+                                    <td class="text-end"><span class="badge bg-secondary">@dept.TotalComplaints</span></td>
+                                    <td class="text-end"><span class="badge bg-success">@dept.ResolvedComplaints</span></td>
+                                    <td class="text-end"><span class="badge bg-warning text-dark">@dept.PercentageOfTotal.ToString("F1")%</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-tags-fill me-2"></i>Top Categories</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                    <table class="table table-sm table-hover">
+                        <thead class="sticky-top bg-white">
+                            <tr>
+                                <th>Category</th>
+                                <th>Dept</th>
+                                <th class="text-end">Total</th>
+                                <th class="text-end">Resolved</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var cat in Model.TopCategoriesByComplaints)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@cat.Name</td>
+                                    <td><small class="text-muted">@cat.DepartmentName</small></td>
+                                    <td class="text-end"><span class="badge bg-secondary">@cat.TotalComplaints</span></td>
+                                    <td class="text-end"><span class="badge bg-success">@cat.ResolvedComplaints</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mt-2">
+    <!-- Status Distribution Chart -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="bi bi-pie-chart-fill me-2"></i>Status Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="statusChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Priority Distribution Chart -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-bar-chart-fill me-2"></i>Priority Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="priorityChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Time Series Charts -->
+<div class="row g-4 mt-2">
+    <!-- Complaints Trend (Last 12 Months) -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Complaints Trend (Last 12 Months)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="trendChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Peak Periods -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="bi bi-clock-fill me-2"></i>Peak Periods</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="text-muted mb-3">Peak Hours</h6>
+                @foreach (var peak in Model.PeakComplaintHours)
+                {
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="fw-bold">@peak.Period</span>
+                            <span class="text-muted">@peak.ComplaintCount (@peak.Percentage.ToString("F1")%)</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: @peak.Percentage%"></div>
+                        </div>
+                    </div>
+                }
+
+                <hr class="my-4">
+
+                <h6 class="text-muted mb-3">Peak Days</h6>
+                @foreach (var peak in Model.PeakComplaintDays)
+                {
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="fw-bold">@peak.Period</span>
+                            <span class="text-muted">@peak.ComplaintCount (@peak.Percentage.ToString("F1")%)</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: @peak.Percentage%"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Status Distribution Pie Chart
+        const statusData = @Html.Raw(Json.Serialize(Model.StatusDistribution));
+        new Chart(document.getElementById('statusChart'), {
+            type: 'pie',
+            data: {
+                labels: Object.keys(statusData),
+                datasets: [{
+                    data: Object.values(statusData),
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.8)',  // Resolved - Green
+                        'rgba(108, 117, 125, 0.8)', // Pending - Grey
+                        'rgba(23, 162, 184, 0.8)',  // InProgress - Cyan
+                        'rgba(255, 193, 7, 0.8)'    // Other - Yellow
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Priority Distribution Bar Chart
+        const priorityData = @Html.Raw(Json.Serialize(Model.PriorityDistribution));
+        new Chart(document.getElementById('priorityChart'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(priorityData),
+                datasets: [{
+                    label: 'Complaints',
+                    data: Object.values(priorityData),
+                    backgroundColor: [
+                        'rgba(220, 53, 69, 0.8)',  // Critical - Red
+                        'rgba(255, 193, 7, 0.8)',  // High - Yellow
+                        'rgba(108, 117, 125, 0.8)' // Normal - Grey
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Trend Chart (Last 12 Months)
+        const trendData = @Html.Raw(Json.Serialize(Model.ComplaintsByMonth));
+        new Chart(document.getElementById('trendChart'), {
+            type: 'line',
+            data: {
+                labels: trendData.map(d => d.period),
+                datasets: [
+                    {
+                        label: 'Total Complaints',
+                        data: trendData.map(d => d.totalComplaints),
+                        borderColor: 'rgba(13, 110, 253, 1)',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Resolved',
+                        data: trendData.map(d => d.resolvedComplaints),
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Pending',
+                        data: trendData.map(d => d.pendingComplaints),
+                        borderColor: 'rgba(108, 117, 125, 1)',
+                        backgroundColor: 'rgba(108, 117, 125, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+}
+

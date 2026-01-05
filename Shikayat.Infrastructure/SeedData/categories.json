@@ -1,0 +1,188 @@
+[
+	{
+		"Name": "Health",
+		"SubCategories": [
+			"Illegal Practice / Quacks",
+			"Primary Health",
+			"Medical Teaching Institutes",
+			"Illegal Medicines",
+			"Secondary Health"
+		]
+	},
+	{
+		"Name": "Education",
+		"SubCategories": [
+			"Elementary & Secondary",
+			"Higher Education Commission",
+			"Universities",
+			"Private Schools",
+			"Colleges"
+		]
+	},
+	{
+		"Name": "Municipal Services",
+		"SubCategories": [
+			"Water Connection",
+			"Illegal Construction",
+			"Graveyards",
+			"Construction material on roads",
+			"Street Lights",
+			"Encroachment",
+			"Parking / Adda",
+			"Low hanging electricity wires",
+			"Price Control",
+			"Water Supply Scheme",
+			"Stray Animals",
+			"Cleanliness",
+			"Unhygienic Food / Factory",
+			"Illegal billboards",
+			"Repair of Street"
+		]
+	},
+	{
+		"Name": "Land & Revenue",
+		"SubCategories": [
+			"Transfer of Land / Mutation",
+			"Complaint against Revenue Staff"
+		]
+	},
+	{
+		"Name": "Law & Order",
+		"SubCategories": [
+			"Prisons",
+			"Traffic Police",
+			"Police",
+			"Pakistan Railway Police",
+			"Motorway Police",
+			"Airport Security Force",
+			"Anti-Narcotics Force"
+		]
+	},
+	{
+		"Name": "Transport",
+		"SubCategories": [
+			"Fares",
+			"Bus Addas",
+			"Overloading",
+			"Pakistan International Airlines (PIA)",
+			"Railways"
+		]
+	},
+	{
+		"Name": "Communications",
+		"SubCategories": [
+			"Irrigation Roads",
+			"Airports",
+			"C&W Roads",
+			"Motorways",
+			"Local Govt. Roads",
+			"National Highways",
+			"Pakistan Post",
+			"PTCL & PTA"
+		]
+	},
+	{
+		"Name": "Energy & Power",
+		"SubCategories": [
+			"Gas",
+			"Electricity"
+		]
+	},
+	{
+		"Name": "Human Rights",
+		"SubCategories": [
+			"Denial of Rights",
+			"Consumer Rights",
+			"Child Abuse",
+			"Right to Information",
+			"Sexual Harassment",
+			"Missing Persons",
+			"Right to Services",
+			"Gender Discrimination"
+		]
+	},
+	{
+		"Name": "Licenses, Certificates",
+		"SubCategories": [
+			"Domicile Certificate",
+			"Route Permit",
+			"NGO NOC",
+			"Arm License",
+			"Death Certificate",
+			"Divorce Registration",
+			"Medical Store License",
+			"NOC for Foreign Traveler",
+			"Driving License",
+			"Birth Certificate",
+			"Vehicle Fitness Certificate",
+			"Fishing License",
+			"Marriage Certificate"
+		]
+	},
+	{
+		"Name": "Registrations",
+		"SubCategories": [
+			"Union Registration",
+			"Company Registration",
+			"Pakistan Engineering Council (PEC)",
+			"NGO Registration",
+			"Vehicle Registration"
+		]
+	},
+	{
+		"Name": "Excise & Taxation",
+		"SubCategories": [
+			"Provincial Excise",
+			"Money Laundering",
+			"Financial Fraud"
+		]
+	},
+	{
+		"Name": "Media, Cyber Crimes",
+		"SubCategories": [
+			"Cyber Crime",
+			"Print Media",
+			"Social Media",
+			"Electronic Media"
+		]
+	},
+	{
+		"Name": "Immigration & Passport",
+		"SubCategories": [
+			"Official Passport",
+			"Pakistani Visa",
+			"Issuance of Passport",
+			"Pakistani Citizenship"
+		]
+	},
+	{
+		"Name": "NADRA",
+		"SubCategories": [
+			"Juvenile Card",
+			"Family Registration",
+			"Issuance of CNIC",
+			"Form B",
+			"Overseas Pakistani Card",
+			"Blocked CNIC",
+			"CNIC replacement / renewal"
+		]
+	},
+	{
+		"Name": "Disaster / Emergency",
+		"SubCategories": [
+			"Internally Displaced Persons",
+			"Floods",
+			"Rehabilitation",
+			"Earthquake",
+			"Death Compensation"
+		]
+	},
+	{
+		"Name": "Overseas Pakistani",
+		"SubCategories": [
+			"Pakistan Foreign Office",
+			"Pakistan Embassy in Resident Country",
+			"Complaint to Prime Minister"
+		]
+	}
+]

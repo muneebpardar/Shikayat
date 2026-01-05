@@ -1,0 +1,43 @@
+@if (TempData["Success"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: '@Html.Raw(TempData["Success"])',
+            timer: 3000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    </script>
+}
+
+@if (TempData["Error"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: '@Html.Raw(TempData["Error"])',
+            timer: 4000,
+            showConfirmButton: true
+        });
+    </script>
+}
+
+@if (TempData["Info"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'info',
+            title: 'Information',
+            text: '@Html.Raw(TempData["Info"])',
+            timer: 3000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    </script>
+}
+

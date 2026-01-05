@@ -1,0 +1,24 @@
+﻿@{
+    // Check if user is admin and set layout accordingly
+    if (User.IsInRole("SuperAdmin") || User.IsInRole("ProvincialAdmin") || 
+        User.IsInRole("DistrictAdmin") || User.IsInRole("ZonalAdmin"))
+    {
+        if (ViewContext.RouteData.Values["controller"]?.ToString() == "Admin" ||
+            ViewContext.RouteData.Values["controller"]?.ToString() == "Analytics" ||
+            (ViewContext.RouteData.Values["controller"]?.ToString() == "Complaint" && 
+             ViewContext.RouteData.Values["action"]?.ToString() == "Details") ||
+            (ViewContext.RouteData.Values["controller"]?.ToString() == "Suggestion" && 
+             ViewContext.RouteData.Values["action"]?.ToString() == "Details"))
+        {
+            Layout = "_AdminLayout";
+        }
+        else
+        {
+            Layout = "_Layout";
+        }
+    }
+    else
+    {
+        Layout = "_Layout";
+    }
+}

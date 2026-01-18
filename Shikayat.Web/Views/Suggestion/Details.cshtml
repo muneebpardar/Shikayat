@@ -2,7 +2,8 @@
 @using Shikayat.Domain.Enums
 @using Shikayat.Domain.Entities
 @{
-    Layout = "_AdminLayout";
+    bool isCitizen = User.IsInRole("Citizen");
+    Layout = isCitizen ? "_Layout" : "_AdminLayout";
     ViewData["Title"] = $"Suggestion #{Model.TicketId}";
 }
 
@@ -123,9 +124,18 @@
                 }
             </div>
         </div>
-        <a asp-action="Index" asp-controller="Admin" class="btn btn-outline-secondary w-100">
-            <i class="bi bi-arrow-left"></i> Back to Dashboard
-        </a>
+        @if (isCitizen)
+        {
+            <a asp-action="Index" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-arrow-left"></i> Back to My Suggestions
+            </a>
+        }
+        else
+        {
+            <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        }
     </div>
 
     <!-- Right Side - Chat Interface -->
@@ -170,11 +180,11 @@
                                 }
                                 else
                                 {
-                                    var isCitizen = log.SenderId == Model.CitizenId;
-                                    var senderName = isCitizen ? "You" : (log.Sender?.FullName ?? "Official");
+                                    var isLogFromCitizen = log.SenderId == Model.CitizenId;
+                                    var senderName = isLogFromCitizen ? "You" : (log.Sender?.FullName ?? "Official");
                                     var initials = string.Join("", senderName.Split(' ').Take(2).Select(n => n.Length > 0 ? n[0].ToString() : ""));
                                     var hasOverride = log.Message?.StartsWith("[Override]") ?? false;
-                                    <div class="message-bubble @(isCitizen ? "citizen" : "admin")">
+                                    <div class="message-bubble @(isLogFromCitizen ? "citizen" : "admin")">
                                         <div class="message-content">
                                             <div class="message-header">
                                                 <div class="message-avatar">@initials</div>
